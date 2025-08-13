@@ -106,7 +106,7 @@ if (isset($_POST['form_sent']))
 
 	if (!is_valid_email($email1))
 		$errors[] = $lang_common['Invalid email'];
-	else if ($pun_config['o_regs_verify'] == '1' && $email1 != $email2)
+	else if ($pun_config['o_regs_verify'] == '1' && $email1 !== $email2)
 		$errors[] = $lang_register['Email not match'];
 
 	// Check if it's a banned email address
@@ -450,7 +450,7 @@ if (!empty($errors))
 				</fieldset>
 			</div>
 <?php flux_hook('register_before_submit'); ?>
-			<p class="buttons"><input type="submit" name="register" value="<?php echo $lang_register['Register'] ?>" /></p>
+			<p class="buttons"><input type="submit" name="register2" value="<?php echo $lang_register['Register'] ?>" /></p>
 		</form>
 	</div>
 </div>
