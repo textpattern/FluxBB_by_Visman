@@ -76,7 +76,15 @@ if (!$pun_user['is_guest'])
 // Determine the topic offset (based on $_GET['p'])
 $num_pages = ceil($cur_forum['num_topics'] / $pun_user['disp_topics']);
 
-$p = ! is_numeric($_GET['p'] ?? null) || $_GET['p'] <= 1 || $_GET['p'] > $num_pages ? 1 : intval($_GET['p']);
+if (! isset($_GET['p']))
+	$p = 1;
+elseif (! is_numeric($_GET['p']) || $_GET['p'] < 1)
+	message($lang_common['Bad request'], false, '404 Not Found');
+elseif ($_GET['p'] > $num_pages)
+	message($lang_common['No page'] ?? $lang_common['Bad request'], false, '404 Not Found');
+else
+	$p = intval($_GET['p']);
+
 $start_from = $pun_user['disp_topics'] * ($p - 1);
 
 // Generate paging links
@@ -214,9 +222,11 @@ if (!empty($topic_ids))
 		$status_text = array();
 		$item_status = $topic_count % 2 == 0 ? 'roweven' : 'rowodd';
 		$icon_type = 'icon';
+		$num_pages_topic = ceil(($cur_topic['num_replies'] + 1) / $pun_user['disp_posts']);
 
 		if (is_null($cur_topic['moved_to']))
-			$last_post = '<a href="viewtopic.php?pid='.$cur_topic['last_post_id'].'#p'.$cur_topic['last_post_id'].'">'.format_time($cur_topic['last_post']).'</a> <span class="byuser">'.$lang_common['by'].' '.pun_htmlspecialchars($cur_topic['last_poster']).'</span>';
+//			$last_post = '<a href="viewtopic.php?pid='.$cur_topic['last_post_id'].'#p'.$cur_topic['last_post_id'].'">'.format_time($cur_topic['last_post']).'</a> <span class="byuser">'.$lang_common['by'].' '.pun_htmlspecialchars($cur_topic['last_poster']).'</span>';
+			$last_post = '<a href="viewtopic.php?id='.$cur_topic['id'].($num_pages_topic > 1 ? '&p='.$num_pages_topic : '').'#p'.$cur_topic['last_post_id'].'">'.format_time($cur_topic['last_post']).'</a> <span class="byuser">'.$lang_common['by'].' '.pun_htmlspecialchars($cur_topic['last_poster']).'</span>';
 		else
 			$last_post = '- - -';
 
@@ -270,7 +280,7 @@ if (!empty($topic_ids))
 			}
 		}
 
-		$num_pages_topic = ceil(($cur_topic['num_replies'] + 1) / $pun_user['disp_posts']);
+//		$num_pages_topic = ceil(($cur_topic['num_replies'] + 1) / $pun_user['disp_posts']);
 
 		if ($num_pages_topic > 1)
 			$subject .= ' <span class="pagestext">[ '.paginate($num_pages_topic, -1, 'viewtopic.php?id='.$cur_topic['id']).' ]</span>';

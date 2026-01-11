@@ -522,7 +522,15 @@ if (isset($_GET['action']) || isset($_GET['search_id']))
 		$per_page = $show_as == 'posts' ? $pun_user['disp_posts'] : $pun_user['disp_topics'];
 		$num_pages = ceil($num_hits / $per_page);
 
-		$p = ! is_numeric($_GET['p'] ?? null) || $_GET['p'] <= 1 || $_GET['p'] > $num_pages ? 1 : intval($_GET['p']);
+		if (! isset($_GET['p']))
+			$p = 1;
+		elseif (! is_numeric($_GET['p']) || $_GET['p'] < 1)
+			message($lang_common['Bad request'], false, '404 Not Found');
+		elseif ($_GET['p'] > $num_pages)
+			message($lang_common['No page'] ?? $lang_common['Bad request'], false, '404 Not Found');
+		else
+			$p = intval($_GET['p']);
+
 		$start_from = $per_page * ($p - 1);
 
 		// Generate paging links
@@ -810,7 +818,7 @@ if (isset($_GET['action']) || isset($_GET['search_id']))
 					</td>
 					<td class="tc2"><?php echo $forum ?></td>
 					<td class="tc3"><?php echo forum_number_format($cur_search['num_replies']) ?></td>
-					<td class="tcr"><?php echo '<a href="viewtopic.php?pid='.$cur_search['last_post_id'].$url_shl.'#p'.$cur_search['last_post_id'].'">'.format_time($cur_search['last_post']).'</a> <span class="byuser">'.$lang_common['by'].' '.pun_htmlspecialchars($cur_search['last_poster']) ?></span></td>
+					<td class="tcr"><?php echo '<a href="viewtopic.php?id='.$cur_search['tid'].($num_pages_topic > 1 ? '&p='.$num_pages_topic : '').$url_shl.'#p'.$cur_search['last_post_id'].'">'.format_time($cur_search['last_post']).'</a> <span class="byuser">'.$lang_common['by'].' '.pun_htmlspecialchars($cur_search['last_poster']) ?></span></td>
 				</tr>
 <?php
 
